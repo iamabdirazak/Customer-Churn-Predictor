@@ -1,110 +1,116 @@
 # Customer Churn Prediction
 
-## Overview
+## Project Overview
 
-This project aims to predict **customer churn** for a subscription-based service. Churn refers to customers who stop using the service over a given period.  
-It is formulated as a **binary classification problem** (Churn: Yes/No).
-
-The objective is to identify patterns in customer behavior that can help retain customers.  
-Suitable model families for binary classification in this context include:
-
-- **Tree-based models**: Random Forest, Gradient Boosting (XGBoost, LightGBM, CatBoost)
-- **Logistic Regression**
-- **Support Vector Machines**
-- **Neural Networks** (for more complex feature interactions)
+This project addresses the problem of predicting **customer churn** in a subscription-based service.  
+**Churn** means customers who stop using the service, modeled as a **binary classification problem** (Churn = Yes/No).  
+The goal is to build a reliable predictive model to identify customers likely to churn, enabling targeted retention efforts.
 
 ---
 
 ## Dataset
 
-The dataset contains customer demographic, account, and service usage information.  
-Key columns include:
+The dataset includes customer demographics, account details, and service usage data.  
+Key features used:
 
-- **tenure** – Number of months the customer has stayed with the company.
-- **MonthlyCharges** – Amount billed to the customer each month.
-- **TotalCharges** – Total amount billed over the customer’s tenure.
-- **Contract** – Type of contract (month-to-month, one year, two years).
-- **PaymentMethod** – Payment method chosen by the customer.
-- **Churn** – Target variable (`Yes` or `No`).
+- `customerID` — Unique customer identifier
+- `gender` — Customer gender
+- `SeniorCitizen` — Boolean flag for senior customers
+- `tenure` — Number of months customer stayed
+- `MonthlyCharges` — Monthly billing amount
+- `TotalCharges` — Total billing amount over tenure
+- `Contract` — Contract type (Month-to-month, One year, Two year)
+- `PaymentMethod` — Payment method used
+- `Churn` — Target variable (Yes/No)
 
 ---
 
-## Data Science Workflow
+## Workflow Summary
 
-### 1. Data Mining
+### 1. Data Inspection & Cleaning
 
-- Load dataset and review schema.
-- Identify data types, missing values, and unique value counts.
-- Understand domain-specific meanings of features (e.g., **tenure** affects churn probability — shorter tenure customers are more likely to leave).
+- Loaded dataset and inspected structure and data types.
+- Identified and imputed missing values in `TotalCharges` by calculating `MonthlyCharges * tenure`.
+- Converted inconsistent data types (e.g., `TotalCharges` as numeric).
+- Normalized categorical columns for uniformity.
 
-### 2. Data Cleaning
+### 2. Exploratory Data Analysis (EDA)
 
-- Handle **missing values**:
-  - Replace missing `TotalCharges` with `MonthlyCharges * tenure` (if applicable).
-- Remove obvious data entry errors or inconsistencies.
-- Standardize categorical values (e.g., "Yes"/"No" responses).
+- Analyzed distribution of key variables (`tenure`, `MonthlyCharges`, `Churn`).
+- Visualized churn rate by contract type and tenure length.
+- Observed higher churn among short-tenure customers and month-to-month contracts.
 
-### 3. Data Exploration
+### 3. Feature Engineering & Preprocessing
 
-- **Univariate analysis**: Distribution of tenure, monthly charges, and churn rates.
-- **Bivariate analysis**: Relationship between churn and other features.
-- Visualize key patterns:
-  - Customers with short tenure churn more.
-  - Month-to-month contracts have higher churn rates than longer contracts.
+- Encoded categorical variables:
+  - Label encoded `Churn` (Yes=1, No=0).
+  - One-hot encoded nominal variables like `PaymentMethod` and `Contract`.
+- Scaled numerical features (`MonthlyCharges`, `TotalCharges`) using StandardScaler.
+- Created new feature: Average Monthly Spend = `TotalCharges / tenure`.
 
-### 4. Data Transformation
+### 4. Modeling
 
-- **Encoding categorical variables**:
-  - One-hot encode nominal variables (e.g., `PaymentMethod`).
-  - Label encode binary variables (e.g., `Churn` → 0/1).
-- **Feature scaling**:
-  - Standardize numeric features for models sensitive to scale (e.g., logistic regression, SVM).
-- **Feature engineering**:
-  - Contract length categories converted to numeric features.
-  - Calculate **Average Monthly Spend** (`TotalCharges / tenure`).
-
-### 5. Model Training & Evaluation
-
-- Split dataset into **train** and **test** sets.
-- Train multiple classification models:
+- Split data into training and testing sets (80/20).
+- Trained multiple classification models:
   - Logistic Regression
-  - Random Forest
-  - Gradient Boosting
-- Evaluate using:
+  - Random Forest Classifier
+  - Gradient Boosting Classifier
+- Evaluated models with metrics:
   - Accuracy
-  - Precision, Recall, F1-score
-  - ROC-AUC score
-- Compare performance and select the best-performing model.
+  - Precision, Recall, F1-Score
+  - ROC-AUC Score
+
+### 5. Model Evaluation
+
+- Random Forest and Gradient Boosting outperformed Logistic Regression in recall and AUC, crucial for catching churners.
+- Feature importance analysis highlighted `tenure`, `Contract`, and `MonthlyCharges` as key predictors.
 
 ---
 
-## Results & Insights
+## Results
 
-- **Tenure** is a strong predictor of churn — customers in their first few months are more likely to leave.
-- Month-to-month contracts show higher churn compared to one-year or two-year contracts.
-- Automatic payment methods are associated with lower churn.
+Logistic Regression with updated n_estimators
+ROC AUC: 0.84
+precision recall f1-score support
+
+           0       0.90      0.73      0.80      1033
+           1       0.51      0.78      0.61       372
+
+    accuracy                           0.74      1405
+
+macro avg 0.70 0.75 0.71 1405
+weighted avg 0.80 0.74 0.75 1405
+
+Random Forest with updated n_estimators
+ROC AUC: 0.814
+precision recall f1-score support
+
+           0       0.81      0.90      0.85      1033
+           1       0.60      0.44      0.50       372
+
+    accuracy                           0.77      1405
+
+macro avg 0.71 0.67 0.68 1405
+weighted avg 0.76 0.77 0.76 1405
+
+![alt text](image.png)
 
 ---
 
-## Next Steps
+## Technologies & Libraries Used
 
-- Implement hyperparameter tuning (GridSearchCV or RandomizedSearchCV) for the best model.
-- Deploy the trained model as an API for real-time churn prediction.
-- Integrate with CRM systems for proactive retention campaigns.
-
----
-
-## Technologies Used
-
-- **Python** (pandas, NumPy, scikit-learn, matplotlib, seaborn)
-- **Jupyter Notebook** for experimentation and visualization
+- Python 3.x
+- pandas, NumPy for data manipulation
+- scikit-learn for modeling and evaluation
+- matplotlib, seaborn for visualization
+- Jupyter Notebook for interactive exploration
 
 ---
 
-## How to Run
+## Author
 
-1. Clone this repository.
-2. Install required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+Abdirazak Mubarak
+
+## Date
+
+August 10, 2025
